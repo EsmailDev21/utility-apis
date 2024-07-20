@@ -1,6 +1,7 @@
 # Node modules
 node_modules/
 
+
 # Log files
 logs/
 *.log
@@ -16,7 +17,7 @@ yarn-error.log*
 .env.production.local
 
 # Firebase service account key
-serviceAccountKey.json
+serviceAccount.json
 
 # Coverage directory used by tools like istanbul
 coverage/
