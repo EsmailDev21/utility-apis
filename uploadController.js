@@ -11,6 +11,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     const file = req.file;
+    console.log(res.file)
     const blob = bucket.file(file.originalname);
     const blobStream = blob.createWriteStream({
       metadata: {
