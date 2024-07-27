@@ -34,6 +34,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     blobStream.end(file.buffer);
   } catch (error) {
+    console.log(error)
     res.status(500).send({ error: error.message });
   }
 });
