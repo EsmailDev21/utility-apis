@@ -18,6 +18,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
         contentType: file.mimetype,
       },
     });
+    console.log({blob,blobStream})
 
     blobStream.on('error', (error) => {
       res.status(500).send({ error: error.message });
