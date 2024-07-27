@@ -21,6 +21,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     console.log({blob,blobStream})
 
     blobStream.on('error', (error) => {
+      console.log({error})
       res.status(500).send({ error: error.message });
     });
 
