@@ -1,5 +1,5 @@
-const express = require('express');
-const uploadRouter = require('./uploadController');
+import express from 'express';
+import uploadRouter from './uploadController';
 
 const app = express();
 const port = process.env.PORT || 3000;
