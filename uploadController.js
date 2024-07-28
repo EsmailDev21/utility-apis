@@ -11,14 +11,17 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     const file = req.file;
+    console.log(req.file)
     const blob = bucket.file(file.originalname);
     const blobStream = blob.createWriteStream({
       metadata: {
         contentType: file.mimetype,
       },
     });
+    console.log({blob,blobStream})
 
     blobStream.on('error', (error) => {
+      console.log({error})
       res.status(500).send({ error: error.message });
     });
 
@@ -33,6 +36,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     blobStream.end(file.buffer);
   } catch (error) {
+    console.log(error)
     res.status(500).send({ error: error.message });
   }
 });
