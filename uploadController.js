@@ -1,44 +1,49 @@
-const express = require('express');
-const upload = require('./multer-config');
-const bucket = require('./firebase-admin');
+// upload.js
+import { storage } from './firebaseConfig';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import express from 'express';
+import multer from 'multer';
 
-const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
+const app = express();
 
-router.post('/upload', upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).send('No file uploaded.');
+app.post('/upload', upload.single('file'), async (req, res) => {
+    try {
+        const file = req.file;
+        if (!file) {
+            return res.status(400).send('No file uploaded.');
+        }
+
+        const storageRef = ref(storage, `uploads/${file.originalname}`);
+        const metadata = {
+            contentType: file.mimetype,
+        };
+
+        const uploadTask = uploadBytesResumable(storageRef, file.buffer, metadata);
+
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                // Observe state change events such as progress, pause, and resume
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+            }, 
+            (error) => {
+                // Handle unsuccessful uploads
+                console.error(error);
+                res.status(500).send(error);
+            }, 
+            async () => {
+                // Handle successful uploads on complete
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                res.status(200).send({ url: downloadURL });
+            }
+        );
+    } catch (error) {
+        res.status(500).send(error.message);
     }
-
-    const file = req.file;
-    console.log(req.file)
-    const blob = bucket.file(file.originalname);
-    const blobStream = blob.createWriteStream({
-      metadata: {
-        contentType: file.mimetype,
-      },
-    });
-    console.log({blob,blobStream})
-
-    blobStream.on('error', (error) => {
-      console.log({error})
-      res.status(500).send({ error: error.message });
-    });
-
-    blobStream.on('finish', async () => {
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-
-      // Optionally, set the file to be publicly readable
-      await blob.makePublic();
-
-      res.status(200).send({ fileName: file.originalname, fileLocation: publicUrl });
-    });
-
-    blobStream.end(file.buffer);
-  } catch (error) {
-    console.log(error)
-    res.status(500).send({ error: error.message });
-  }
 });
 
-module.exports = router;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
