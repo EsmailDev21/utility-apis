@@ -3,11 +3,12 @@ import { storage } from './firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import express from 'express';
 import multer from 'multer';
+import { Router } from 'express';
 
 const upload = multer({ storage: multer.memoryStorage() });
-const app = express();
+const router = Router();
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+router.post('/upload', upload.single('file'), async (req, res) => {
     try {
         const file = req.file;
         if (!file) {
@@ -43,7 +44,5 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+
+export default router

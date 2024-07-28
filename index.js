@@ -1,10 +1,10 @@
 import express from 'express';
-import uploadRouter from './uploadController';
+import router from './uploadController';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use('/api', uploadRouter);
+app.use('/api', router);
 
 
 
